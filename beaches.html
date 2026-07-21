@@ -47,7 +47,7 @@
     <div id="discharge-results"></div>
 
 
-    <!-- EA LAB RESULTS SECTION -->
+    <!-- EA LAB RESULTS SECTION 
     <div class="header" style="margin-top: 4rem;">
         <h2 style="margin: 0;">Environment Agency Lab Tests</h2>
         <div>
@@ -55,7 +55,7 @@
             <button onclick="fetchLabData()">Get Lab Results</button>
         </div>
     </div>
-    <div id="lab-results" class="grid"></div>
+    <div id="lab-results" class="grid"></div> -->
 
 
     <script>
@@ -141,46 +141,46 @@
         // =========================================================
         // 2. EA LAB RESULTS LOGIC
         // =========================================================
-        async function fetchLabData() {
+ /*       async function fetchLabData() {
             const samplingId = document.getElementById('samplingPointInput').value.trim();
             const labResultsDiv = document.getElementById('lab-results');
             
             if (!samplingId) return;
-            labResultsDiv.innerHTML = '<div style="padding: 1rem;"><div class="loader"></div> Fetching lab results...</div>';
+            labResultsDiv.innerHTML = '<div style="padding: 1rem;"><div class="loader"></div> Fetching lab results from the 2026 API...</div>';
 
-            // The EA's NEW 2026 API Endpoint
-            const url = `https://environment.data.gov.uk/water-quality/data/observation`;
-            
-            // The new API uses 'pointNotation' and 'limit' (no underscores)
+            // The NEW 2026 Environment Agency endpoint structure
+            const url = `https://environment.data.gov.uk/water-quality/sampling-point/${samplingId}/observation`;
             const params = new URLSearchParams({
-                pointNotation: samplingId,
                 limit: 10
             });
 
             try {
-                // The new API prefers an Accept header to strictly return JSON
+                // We explicitly ask the EA server to hand us JSON back
                 const response = await fetch(`${url}?${params}`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} (Make sure the Site ID is correct)`);
+                }
                 
+                const data = await response.json();
                 labResultsDiv.innerHTML = '';
 
-                if (!data.items || data.items.length === 0) {
-                    labResultsDiv.innerHTML = `<p style="color: #666; font-style: italic; width: 100%;">No recent lab results found for ID ${samplingId}.</p>`;
+                // The new API usually wraps results in 'items'
+                const items = data.items || data;
+
+                if (!items || items.length === 0) {
+                    labResultsDiv.innerHTML = `<p style="color: #666; width: 100%;">No recent lab results found for ID ${samplingId}.</p>`;
                     return;
                 }
 
-                data.items.forEach(item => {
-                    // Extracting data using the new API's JSON structure
-                    const date = item.phenomenonTime ? new Date(item.phenomenonTime).toLocaleDateString('en-GB') : 'Unknown Date';
-                    
-                    // The new Linked Data structure sometimes nests names under 'prefLabel'
-                    const chemical = item.determinand?.prefLabel || item.determinand || "Unknown Chemical";
+                items.forEach(item => {
+                    // Mapping the new 2026 SOSA JSON structure
+                    const date = new Date(item.phenomenonTime).toLocaleDateString('en-GB');
+                    const chemical = item.determinand?.prefLabel || item.determinand?.label || "Unknown Chemical";
                     const result = item.result;
-                    const unit = item.unit?.prefLabel || item.unit || "";
+                    const unit = item.unit?.prefLabel || item.unit?.label || item.unit || "";
 
                     labResultsDiv.innerHTML += `
                         <div class="card lab">
@@ -196,10 +196,10 @@
                 });
 
             } catch (error) {
-                labResultsDiv.innerHTML = `<p style="color: #ff5252; padding: 1rem;">Error loading lab data. The Environment Agency API rejected the request.</p>`;
-                console.error("EA API Error:", error);
+                console.error(error);
+                labResultsDiv.innerHTML = `<p style="color: #ff5252; padding: 1rem;">Error: ${error.message}</p>`;
             }
-        }
+        }*/
     </script>
 </body>
 </html>
