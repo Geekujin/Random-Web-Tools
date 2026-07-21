@@ -1,4 +1,3 @@
-# Geek's Random Webpages
 ## A Collection of some static projects and dashboards
 
 ---
