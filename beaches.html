@@ -18,8 +18,8 @@
         
         /* Cards */
         .card { background: #242424; padding: 1.25rem; border-radius: 6px; border-left: 5px solid gray; display: flex; flex-direction: column; }
-        .site-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.25rem; }
-        .site-id { color: #777; font-size: 0.85rem; margin-bottom: 1rem; font-family: monospace; }
+        .site-id { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .site-name { color: #777; font-size: 0.85rem; margin-bottom: 1rem; font-family: monospace; }
         .timestamp { font-size: 0.9rem; color: #aaa; margin-top: auto; padding-top: 1rem; border-top: 1px dashed #444; }
         
         /* Dynamic Status Colors */
@@ -44,20 +44,8 @@
         <h2 style="margin: 0;">Live Outfall Dashboard</h2>
         <button onclick="fetchDischargeData()">Refresh Live Data</button>
     </div>
+	<p>Showing the latest sewage discharge from Northumbrian Water</p>
     <div id="discharge-results"></div>
-
-
-    <!-- EA LAB RESULTS SECTION 
-    <div class="header" style="margin-top: 4rem;">
-        <h2 style="margin: 0;">Environment Agency Lab Tests</h2>
-        <div>
-            <input type="text" id="samplingPointInput" placeholder="Enter Sampling Point ID" value="06500">
-            <button onclick="fetchLabData()">Get Lab Results</button>
-        </div>
-    </div>
-    <div id="lab-results" class="grid"></div> -->
-
-
     <script>
         // =========================================================
         // CONFIGURATION (Map your custom groups here)
@@ -77,11 +65,10 @@
         // Trigger live feeds automatically when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             fetchDischargeData();
-            fetchLabData(); // Auto-load the default EA lab ID
         });
 
         // =========================================================
-        // 1. LIVE DISCHARGE LOGIC
+        // LIVE DISCHARGE LOGIC
         // =========================================================
         async function fetchDischargeData() {
             const resultsDiv = document.getElementById('discharge-results');
@@ -121,8 +108,8 @@
 
                             html += `
                                 <div class="card ${status.css}">
-                                    <div class="site-name">${attr.ReceivingWaterCourse || 'Unnamed Location'}</div>
                                     <div class="site-id">Site ID: ${attr.Id}</div>
+                                    <div class="site-name">Discharges into ${attr.ReceivingWaterCourse || 'Unnamed Location'}</div>
                                     <div class="badge ${status.css}">${status.text}</div>
                                     <div class="timestamp"><strong>Latest Spill:</strong><br>${spillDate}</div>
                                 </div>
@@ -137,69 +124,6 @@
                 resultsDiv.innerHTML = `<div class="group-container" style="border-color: #f44336;"><p style="color: #ff5252;">Error loading data: ${error.message}</p></div>`;
             }
         }
-
-        // =========================================================
-        // 2. EA LAB RESULTS LOGIC
-        // =========================================================
- /*       async function fetchLabData() {
-            const samplingId = document.getElementById('samplingPointInput').value.trim();
-            const labResultsDiv = document.getElementById('lab-results');
-            
-            if (!samplingId) return;
-            labResultsDiv.innerHTML = '<div style="padding: 1rem;"><div class="loader"></div> Fetching lab results from the 2026 API...</div>';
-
-            // The NEW 2026 Environment Agency endpoint structure
-            const url = `https://environment.data.gov.uk/water-quality/sampling-point/${samplingId}/observation`;
-            const params = new URLSearchParams({
-                limit: 10
-            });
-
-            try {
-                // We explicitly ask the EA server to hand us JSON back
-                const response = await fetch(`${url}?${params}`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} (Make sure the Site ID is correct)`);
-                }
-                
-                const data = await response.json();
-                labResultsDiv.innerHTML = '';
-
-                // The new API usually wraps results in 'items'
-                const items = data.items || data;
-
-                if (!items || items.length === 0) {
-                    labResultsDiv.innerHTML = `<p style="color: #666; width: 100%;">No recent lab results found for ID ${samplingId}.</p>`;
-                    return;
-                }
-
-                items.forEach(item => {
-                    // Mapping the new 2026 SOSA JSON structure
-                    const date = new Date(item.phenomenonTime).toLocaleDateString('en-GB');
-                    const chemical = item.determinand?.prefLabel || item.determinand?.label || "Unknown Chemical";
-                    const result = item.result;
-                    const unit = item.unit?.prefLabel || item.unit?.label || item.unit || "";
-
-                    labResultsDiv.innerHTML += `
-                        <div class="card lab">
-                            <div class="site-name">${chemical}</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0; color: #fff;">
-                                ${result} <span style="font-size: 1rem; color: #aaa;">${unit}</span>
-                            </div>
-                            <div style="font-size: 0.9rem; color: #888;">
-                                <strong>Date:</strong> ${date}
-                            </div>
-                        </div>
-                    `;
-                });
-
-            } catch (error) {
-                console.error(error);
-                labResultsDiv.innerHTML = `<p style="color: #ff5252; padding: 1rem;">Error: ${error.message}</p>`;
-            }
-        }*/
     </script>
 </body>
 </html>
